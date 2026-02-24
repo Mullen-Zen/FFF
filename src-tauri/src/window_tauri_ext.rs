@@ -1,0 +1,1 @@
+// handles window management for target operating systems
