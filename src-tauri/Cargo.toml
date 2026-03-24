@@ -1,1 +1,11 @@
 # this file specifies dependencies and version information
+
+[package]
+name = "fff"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+
+rusqlite = "0.39"
+
