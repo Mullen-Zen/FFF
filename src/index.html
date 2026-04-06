@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FFF Proto</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <div id="app">
+
+    <!-- LEFT SIDEBAR -->
+    <aside id="sidebar">
+      <h2>Indexed Folders</h2>
+      <ul id="folder-list"></ul>
+      <button id="btn-add-folder">+ Add Folder</button>
+      <button id="btn-clear-index">Clear Index</button>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main id="content">
+
+      <div id="search-bar">
+        <input
+          type="search"
+          id="search-input"
+          placeholder="Search by name, path, or tag…"
+          autocomplete="off"
+          spellcheck="false"
+        />
+      </div>
+
+      <div id="browse-bar">
+        <button id="btn-up">⬆ Up</button>
+        <span id="current-path"></span>
+      </div>
+
+      <div id="results-grid"></div>
+
+    </main>
+
+  </div>
+
+  <!-- STATUS BAR -->
+  <footer id="status-bar">
+    <span id="status-text">Ready</span>
+    <div id="progress-bar-container">
+      <div id="progress-bar"></div>
+    </div>
+    <span id="status-count"></span>
+  </footer>
+
+  <script type="module" src="main.js"></script>
+</body>
+</html>

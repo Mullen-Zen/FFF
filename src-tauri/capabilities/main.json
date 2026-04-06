@@ -1,0 +1,19 @@
+{
+  "identifier": "main-capability",
+  "description": "Main window permissions for FFF Proto",
+  "windows": ["main"],
+  "permissions": [
+    "core:default",
+    "dialog:default",
+    "dialog:allow-open",
+    "opener:default",
+    "opener:allow-open-path",
+    "opener:allow-reveal-item-in-dir",
+    "fs:default",
+    "fs:read-all",
+    {
+      "identifier": "fs:scope",
+      "allow": [{ "path": "**" }]
+    }
+  ]
+}

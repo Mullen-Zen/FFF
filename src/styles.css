@@ -1,0 +1,338 @@
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --bg:         #1e1e2e;
+  --surface:    #2a2a3e;
+  --surface2:   #313244;
+  --accent:     #89b4fa;
+  --accent-dim: #89b4fa33;
+  --text:       #cdd6f4;
+  --text-muted: #6c7086;
+  --border:     #3a3a50;
+  --danger:     #f38ba8;
+  --success:    #a6e3a1;
+}
+
+html, body {
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  font-size: 14px;
+  overflow: hidden;
+}
+
+/* ─── LAYOUT ─────────────────────────────────────────── */
+
+#app {
+  display: flex;
+  height: calc(100vh - 28px);
+}
+
+/* ─── SIDEBAR ─────────────────────────────────────────── */
+
+#sidebar {
+  width: 220px;
+  min-width: 180px;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  padding: 16px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow: hidden;
+}
+
+#sidebar h2 {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+#folder-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+
+#folder-list li {
+  padding: 7px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  word-break: break-all;
+  color: var(--text-muted);
+  transition: background 0.12s, color 0.12s;
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+#folder-list li:hover {
+  background: var(--surface2);
+  color: var(--text);
+}
+
+#folder-list li.active {
+  background: var(--accent-dim);
+  color: var(--accent);
+}
+
+#btn-add-folder {
+  padding: 8px 12px;
+  border: 1px dashed var(--border);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--accent);
+  cursor: pointer;
+  font-size: 13px;
+  transition: background 0.12s, border-color 0.12s;
+  flex-shrink: 0;
+}
+
+#btn-add-folder:hover {
+  background: var(--surface2);
+  border-color: var(--accent);
+}
+
+/* ─── MAIN CONTENT ────────────────────────────────────── */
+
+#content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 16px;
+  gap: 12px;
+}
+
+/* Search bar */
+#search-bar input {
+  width: 100%;
+  padding: 10px 16px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  font-size: 15px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+#search-bar input:focus {
+  border-color: var(--accent);
+}
+
+#search-bar input::placeholder {
+  color: var(--text-muted);
+}
+
+/* Browse bar */
+#browse-bar {
+  display: none;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+#browse-bar.visible {
+  display: flex;
+}
+
+#btn-up {
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+  font-size: 12px;
+  transition: border-color 0.15s;
+  white-space: nowrap;
+}
+
+#btn-up:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+#current-path {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ─── RESULTS GRID ────────────────────────────────────── */
+
+#results-grid {
+  flex: 1;
+  overflow-y: auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 10px;
+  align-content: start;
+  padding-right: 4px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+
+.empty-state {
+  grid-column: 1 / -1;
+  padding: 40px 20px;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 13px;
+  line-height: 1.8;
+}
+
+/* ─── FILE CARDS ──────────────────────────────────────── */
+
+.file-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px;
+  cursor: default;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.file-card:hover {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent-dim);
+}
+
+.file-card.is-dir {
+  cursor: pointer;
+}
+
+.file-card-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.file-icon {
+  font-size: 22px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.file-name {
+  font-weight: 600;
+  font-size: 13px;
+  word-break: break-all;
+  color: var(--text);
+  min-width: 0;
+}
+
+.file-path {
+  font-size: 11px;
+  color: var(--text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.file-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  min-height: 20px;
+}
+
+.tag {
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-size: 11px;
+  background: var(--surface2);
+  color: var(--text-muted);
+}
+
+.tag.ai {
+  color: var(--accent);
+  background: var(--accent-dim);
+}
+
+.file-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 2px;
+}
+
+.file-actions button {
+  flex: 1;
+  padding: 5px 8px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 11px;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.file-actions button:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* ─── STATUS BAR ──────────────────────────────────────── */
+
+#status-bar {
+  height: 28px;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  padding: 0 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 12px;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+#progress-bar-container {
+  display: none;
+  flex: 1;
+  max-width: 200px;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--border);
+  overflow: hidden;
+}
+
+#progress-bar-container.visible {
+  display: block;
+}
+
+#progress-bar {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 2px;
+  transition: width 0.3s ease;
+  width: 0%;
+}
+
+#status-count {
+  margin-left: auto;
+  flex-shrink: 0;
+}

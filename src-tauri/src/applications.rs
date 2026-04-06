@@ -1,2 +1,0 @@
-// this file serves as a cross-platform "open with" and app delivery engine
-// it should find installed applications, retrieve their icons and paths, and provide logic to open a given file with a specified application
