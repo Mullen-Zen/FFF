@@ -193,14 +193,48 @@ async function loadFolders() {
 
     dirs.forEach(d => {
       const li = document.createElement('li');
+      li.className = 'indexed-folder-item';
+
       const label = d.replace(/\\/g, '/').split('/').filter(Boolean).pop() || d;
-      li.innerHTML = `<span>📁</span><span title="${escHtml(d)}">${escHtml(label)}</span>`;
+
+      li.innerHTML = `
+        <span class="folder-icon">📁</span>
+        <span class="folder-label" title="${escHtml(d)}">${escHtml(label)}</span>
+        <button class="delete-folder-btn">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 6h18"/>
+            <path d="M8 6V4h8v2"/>
+            <rect x="6" y="6" width="12" height="14" rx="2"/>
+            <line x1="10" y1="11" x2="10" y2="17"/>
+            <line x1="14" y1="11" x2="14" y2="17"/>
+          </svg>
+        </button>
+      `;
+
       li.addEventListener('click', () => {
         if (activeFolderEl) activeFolderEl.classList.remove('active');
         li.classList.add('active');
         activeFolderEl = li;
         browseDir(d);
       });
+
+      const deleteBtn = li.querySelector('.delete-folder-btn');
+
+      deleteBtn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+
+        const confirmed = confirm(`Remove "${label}" from the index?`);
+        if (!confirmed) return;
+
+        try {
+          await invoke('delete_indexed_dir', { path: d });
+          setStatus(`Removed indexed folder: ${label}`);
+          await loadFolders();
+        } catch (err) {
+          setStatus(`Delete error: ${err}`);
+        }
+      });
+
       folderList.appendChild(li);
     });
   } catch (err) {

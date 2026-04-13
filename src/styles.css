@@ -336,3 +336,43 @@ html, body {
   margin-left: auto;
   flex-shrink: 0;
 }
+
+
+.indexed-folder-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.folder-label {
+  flex: 1;
+  margin-left: 8px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.delete-folder-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 26px;
+  height: 26px;
+
+  background-color: rgba(229, 57, 53, 0.15); /* soft red */
+  border: none;
+  border-radius: 6px;
+
+  color: #ff5c5c;
+
+  cursor: pointer;
+  margin-left: 10px;
+
+  transition: all 0.2s ease;
+}
+
+.delete-folder-btn:hover {
+  background-color: #c62828; /* darker red on hover */
+}

@@ -158,3 +158,26 @@ pub fn clear_all(conn: &Connection) -> Result<()> {
     conn.execute_batch("DELETE FROM tags; DELETE FROM files; DELETE FROM indexed_dirs;")?;
     Ok(())
 }
+
+
+
+pub fn delete_indexed_dir(conn: &Connection, dir_path: &str) -> Result<()> {
+    let tx = conn.unchecked_transaction()?;
+
+    tx.execute(
+        "DELETE FROM indexed_dirs WHERE path = ?1",
+        rusqlite::params![dir_path],
+    )?;
+
+    tx.execute(
+        "DELETE FROM files WHERE path = ?1 OR path LIKE ?2 OR path LIKE ?3",
+        rusqlite::params![
+            dir_path,
+            format!("{}\\%", dir_path),
+            format!("{}/%", dir_path),
+        ],
+    )?;
+
+    tx.commit()?;
+    Ok(())
+}

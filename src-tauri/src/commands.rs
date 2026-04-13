@@ -156,3 +156,19 @@ pub async fn get_index_status(
 ) -> Result<IndexStatus, AppError> {
     Ok(status.inner().lock().unwrap().clone())
 }
+
+
+#[tauri::command]
+pub async fn delete_indexed_dir(
+    path: String,
+    db_path: State<'_, DbPath>,
+) -> Result<(), AppError> {
+    let db_file = db_path.0.clone();
+
+    tokio::task::spawn_blocking(move || {
+        let conn = db::open_connection(&db_file)?;
+        db::delete_indexed_dir(&conn, &path)
+    })
+    .await
+    .map_err(|e| AppError::Other(e.to_string()))?
+}

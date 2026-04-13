@@ -51,6 +51,7 @@ pub fn run() {
             commands::search_files,
             commands::index_directory,
             commands::get_indexed_dirs,
+            commands::delete_indexed_dir,
             commands::open_file,
             commands::reveal_in_file_manager,
             commands::get_index_status,
