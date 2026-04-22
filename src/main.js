@@ -17,11 +17,13 @@ const progressCont  = document.getElementById('progress-bar-container');
 const browseBar     = document.getElementById('browse-bar');
 const currentPath   = document.getElementById('current-path');
 const btnUp         = document.getElementById('btn-up');
+const sortBtn = document.getElementById('sortBtn');
 
 // ── State ─────────────────────────────────────────────────────────────────────
 let currentDir   = null;   // null = search/idle mode
 let searchTimer  = null;
 let activeFolderEl = null;
+let alphabeticalSortEnabled = false;
 
 // ── Utilities ─────────────────────────────────────────────────────────────────
 
@@ -55,6 +57,10 @@ function formatBytes(bytes) {
 
 function setStatus(text) {
   statusText.textContent = text;
+}
+
+function getFolderName(path) {
+  return path.replace(/\\/g, '/').split('/').filter(Boolean).pop() || path;
 }
 
 // ── Render helpers ────────────────────────────────────────────────────────────
@@ -180,7 +186,15 @@ async function performSearch(query) {
 
 async function loadFolders() {
   try {
-    const dirs = await invoke('get_indexed_dirs');
+    let dirs = await invoke('get_indexed_dirs');
+
+    if (alphabeticalSortEnabled) {
+      dirs.sort((a, b) =>
+        getFolderName(a).localeCompare(getFolderName(b), undefined, {
+          sensitivity: 'base'
+        })
+      );
+    }
     folderList.innerHTML = '';
 
     if (!dirs.length) {
@@ -195,7 +209,7 @@ async function loadFolders() {
       const li = document.createElement('li');
       li.className = 'indexed-folder-item';
 
-      const label = d.replace(/\\/g, '/').split('/').filter(Boolean).pop() || d;
+      const label = getFolderName(d);
 
       li.innerHTML = `
         <span class="folder-icon">📁</span>
@@ -241,6 +255,13 @@ async function loadFolders() {
     console.error('loadFolders error:', err);
   }
 }
+
+
+sortBtn.addEventListener('click', async () => {
+  alphabeticalSortEnabled = !alphabeticalSortEnabled;
+  sortBtn.textContent = alphabeticalSortEnabled ? 'A-Z ✓' : 'A-Z';
+  await loadFolders();
+});
 
 // ── Add folder ────────────────────────────────────────────────────────────────
 
