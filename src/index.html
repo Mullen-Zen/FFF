@@ -4,52 +4,128 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>FFF Proto</title>
+  <script>(function(){var t=localStorage.getItem('fff_theme');if(t)document.documentElement.setAttribute('data-theme',t);})();</script>
   <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="FFFlogo.css" />
+  <style>
+    #splash {
+      position: fixed;
+      inset: 0;
+      background: var(--bg, #fff);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      transition: opacity 2s ease;
+    }
+    #splash.fade-out {
+      opacity: 0;
+      pointer-events: none;
+    }
+  </style>
 </head>
 <body>
 
+  <div id="splash">
+    <div class="brand-container">
+      <div class="logo-wrapper">
+        <span class="f-leaf">F</span>
+        <span class="f-leaf">F</span>
+        <span class="f-leaf">F</span>
+      </div>
+      <div class="product-name">Find Files Fast</div>
+    </div>
+  </div>
+
   <div id="app">
 
-    <!-- LEFT SIDEBAR -->
     <aside id="sidebar">
-      <h2>Indexed Folders</h2>
+
+      <div id="sidebar-header">
+        <span class="rail-mark">
+          <svg viewBox="0 0 20 20" fill="none" stroke="#007AFF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <g transform="translate(10,10)">
+              <g>
+                <line x1="0" y1="-2" x2="0" y2="-7"/>
+                <line x1="0" y1="-7" x2="3.5" y2="-7"/>
+                <line x1="0" y1="-4.5" x2="3" y2="-4.5"/>
+              </g>
+              <g transform="rotate(120)">
+                <line x1="0" y1="-2" x2="0" y2="-7"/>
+                <line x1="0" y1="-7" x2="3.5" y2="-7"/>
+                <line x1="0" y1="-4.5" x2="3" y2="-4.5"/>
+              </g>
+              <g transform="rotate(240)">
+                <line x1="0" y1="-2" x2="0" y2="-7"/>
+                <line x1="0" y1="-7" x2="3.5" y2="-7"/>
+                <line x1="0" y1="-4.5" x2="3" y2="-4.5"/>
+              </g>
+            </g>
+          </svg>
+        </span>
+        <span class="rail-title">Find Files Fast</span>
+      </div>
+
+      <div class="rail-section">Indexed</div>
       <ul id="folder-list"></ul>
-      <button id="btn-add-folder">+ Add Folder</button>
-      <button id="btn-clear-index">Clear Index</button>
+      <button id="btn-add-folder">
+        <span class="rail-icon">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+            <line x1="8" y1="2" x2="8" y2="14"/>
+            <line x1="2" y1="8" x2="14" y2="8"/>
+          </svg>
+        </span>
+        <span class="rail-label">Add Folder</span>
+      </button>
+
+      <div class="rail-section">Recent</div>
+      <ul id="recents-list"></ul>
+
+      <div id="sidebar-footer">
+        <button id="btn-theme">
+          <span class="rail-icon" id="theme-icon"></span>
+          <span class="rail-label" id="theme-label"></span>
+        </button>
+        <button id="btn-clear-index">
+          <span class="rail-icon">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="2" y1="4" x2="14" y2="4"/>
+              <path d="M5 4V2h6v2"/>
+              <path d="M3 4l1 10h8l1-10"/>
+            </svg>
+          </span>
+          <span class="rail-label">Clear Index</span>
+        </button>
+      </div>
+
     </aside>
 
-    <!-- MAIN CONTENT -->
     <main id="content">
 
       <div id="search-bar">
+        <label for="search-input" class="search-label">Search</label>
         <input
           type="search"
           id="search-input"
-          placeholder="Search by name, path, or tag…"
+          placeholder="Name, path, or tag…"
           autocomplete="off"
           spellcheck="false"
         />
       </div>
 
       <div id="browse-bar">
-        <button id="btn-up">⬆ Up</button>
+        <button id="btn-up">↑ Up</button>
         <span id="current-path"></span>
       </div>
 
-      <div id="results-grid"></div>
+      <div id="results-area">
+        <span id="status-inline"></span>
+        <div id="results-list"></div>
+      </div>
 
     </main>
 
   </div>
-
-  <!-- STATUS BAR -->
-  <footer id="status-bar">
-    <span id="status-text">Ready</span>
-    <div id="progress-bar-container">
-      <div id="progress-bar"></div>
-    </div>
-    <span id="status-count"></span>
-  </footer>
 
   <script type="module" src="main.js"></script>
 </body>

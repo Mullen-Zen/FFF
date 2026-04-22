@@ -1,0 +1,72 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@900&display=swap');
+
+:root {
+  --brand-color: #5e5e5e;
+  --accent-blue: #007AFF;
+  --transition-speed: 3s;
+  --f-size: 8rem;
+}
+
+.brand-container {
+  position: relative;
+  height: 500px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: 'Inter', sans-serif;
+  overflow: hidden;
+}
+
+/* The exact center point where all F's meet */
+.logo-wrapper {
+  position: absolute;
+  width: 0;
+  height: 0;
+  animation: spinSequence var(--transition-speed) forwards cubic-bezier(0.7, 0, 0.3, 1);
+}
+
+.f-leaf {
+  position: absolute;
+  font-size: var(--f-size);
+  font-weight: 900;
+  color: var(--accent-blue);
+  
+  /* CRITICAL: This pulls the "F" down so the baseline 
+     is ignored and the physical pixels meet at the center */
+  line-height: 0.75; 
+  
+  /* The pivot point is the bottom center of the letter's box */
+  transform-origin: bottom center;
+  
+  /* Position the bottom of the letter exactly on the wrapper's center */
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%); /* Centers the stem horizontally */
+}
+
+/* Rotating each F around that center point */
+.f-leaf:nth-child(1) { transform: translateX(-50%) rotate(0deg); }
+.f-leaf:nth-child(2) { transform: translateX(-50%) rotate(120deg); }
+.f-leaf:nth-child(3) { transform: translateX(-50%) rotate(240deg); }
+
+.product-name {
+  font-size: 3.5rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: -2px;
+  color: var(--brand-color);
+  opacity: 0;
+  animation: textFadeIn var(--transition-speed) forwards ease-out;
+}
+
+@keyframes spinSequence {
+  0% { transform: rotate(0deg); opacity: 1; }
+  60% { opacity: 1; }
+  85% { opacity: 0; transform: rotate(360deg); }
+  100% { opacity: 0; transform: rotate(360deg); }
+}
+
+@keyframes textFadeIn {
+  0%, 80% { opacity: 0; transform: scale(0.95); }
+  100% { opacity: 1; transform: scale(1); }
+}
