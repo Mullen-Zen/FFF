@@ -1,4 +1,4 @@
-// Dismiss splash after logo animation completes (3s) + 0.5s fade
+// clear splash screen
 setTimeout(() => {
   const splash = document.getElementById('splash');
   if (splash) {
@@ -7,12 +7,10 @@ setTimeout(() => {
   }
 }, 3000);
 
-// Tauri 2.x injects window.__TAURI__ automatically — no npm install needed.
 const { invoke } = window.__TAURI__.core;
 const { listen }  = window.__TAURI__.event;
 
-// ── SVG glyphs ────────────────────────────────────────────────────────────────
-
+// geometric glyphs for file types
 const G = `viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"`;
 
 const GLYPHS = {
@@ -47,8 +45,6 @@ function fileGlyph(ext) {
   return GLYPHS.default;
 }
 
-// ── DOM refs ──────────────────────────────────────────────────────────────────
-
 const folderList    = document.getElementById('folder-list');
 const recentsList   = document.getElementById('recents-list');
 const btnAddFolder  = document.getElementById('btn-add-folder');
@@ -60,13 +56,9 @@ const browseBar     = document.getElementById('browse-bar');
 const currentPath   = document.getElementById('current-path');
 const btnUp         = document.getElementById('btn-up');
 
-// ── State ─────────────────────────────────────────────────────────────────────
-
 let currentDir     = null;
 let searchTimer    = null;
 let activeFolderEl = null;
-
-// ── Utilities ─────────────────────────────────────────────────────────────────
 
 function formatBytes(bytes) {
   if (!bytes) return '';
@@ -91,8 +83,6 @@ function escHtml(s) {
 function escAttr(s) {
   return String(s).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 }
-
-// ── Render helpers ────────────────────────────────────────────────────────────
 
 function renderFileRow(f) {
   const ext = f.extension ?? f.name.split('.').pop() ?? '';

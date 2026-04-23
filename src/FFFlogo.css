@@ -17,7 +17,7 @@
   overflow: hidden;
 }
 
-/* The exact center point where all F's meet */
+/* center point */
 .logo-wrapper {
   position: absolute;
   width: 0;
@@ -30,21 +30,14 @@
   font-size: var(--f-size);
   font-weight: 900;
   color: var(--accent-blue);
-  
-  /* CRITICAL: This pulls the "F" down so the baseline 
-     is ignored and the physical pixels meet at the center */
   line-height: 0.75; 
-  
-  /* The pivot point is the bottom center of the letter's box */
   transform-origin: bottom center;
-  
-  /* Position the bottom of the letter exactly on the wrapper's center */
   bottom: 0;
   left: 50%;
-  transform: translateX(-50%); /* Centers the stem horizontally */
+  transform: translateX(-50%);
 }
 
-/* Rotating each F around that center point */
+/* rotate animation */
 .f-leaf:nth-child(1) { transform: translateX(-50%) rotate(0deg); }
 .f-leaf:nth-child(2) { transform: translateX(-50%) rotate(120deg); }
 .f-leaf:nth-child(3) { transform: translateX(-50%) rotate(240deg); }

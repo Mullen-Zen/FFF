@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "identifier": "com.fff.proto",
-  "productName": "FFF Proto",
-  "version": "0.1.0",
+  "identifier": "com.fff.final",
+  "productName": "FFF",
+  "version": "0.2.0",
   "build": {
     "frontendDist": "../src"
   },
@@ -10,7 +10,7 @@
     "withGlobalTauri": true,
     "windows": [
       {
-        "title": "FFF Proto",
+        "title": "FFF",
         "width": 768,
         "height": 480,
         "minWidth": 600,
