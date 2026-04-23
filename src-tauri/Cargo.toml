@@ -1,7 +1,7 @@
 [package]
-name = "fff-proto"
+name = "fff"
 version = "0.1.0"
-description = "FFF Proto — AI-powered file search"
+description = "FFF — AI-powered file search"
 authors = []
 edition = "2021"
 
