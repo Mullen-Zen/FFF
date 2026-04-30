@@ -322,7 +322,7 @@ btnClearIndex.addEventListener('click', async () => {
   }
 });
 
-// ── Open / Reveal (event delegation) ─────────────────────────────────────────
+// open or reveal
 
 resultsList.addEventListener('click', async (e) => {
   const btn = e.target.closest('[data-action]');
@@ -339,14 +339,14 @@ resultsList.addEventListener('click', async (e) => {
   }
 });
 
-// ── Search input (debounced 300ms) ────────────────────────────────────────────
+// search bar
 
 searchInput.addEventListener('input', (e) => {
   clearTimeout(searchTimer);
   searchTimer = setTimeout(() => performSearch(e.target.value), 300);
 });
 
-// ── Navigate up ───────────────────────────────────────────────────────────────
+// crawl up
 
 btnUp.addEventListener('click', () => {
   if (!currentDir) return;
@@ -358,7 +358,7 @@ btnUp.addEventListener('click', () => {
   }
 });
 
-// ── Keyboard: / focuses search ────────────────────────────────────────────────
+// slash to search
 
 document.addEventListener('keydown', (e) => {
   if (e.key === '/' && document.activeElement !== searchInput) {
@@ -368,7 +368,7 @@ document.addEventListener('keydown', (e) => {
   }
 });
 
-// ── Indexing progress ─────────────────────────────────────────────────────────
+// indexing progress
 
 listen('index-status', (event) => {
   const s = event.payload;
@@ -382,7 +382,7 @@ listen('index-status', (event) => {
   }
 });
 
-// ── Theme toggle ──────────────────────────────────────────────────────────────
+// light/dark theme
 
 const THEME_KEY  = 'fff_theme';
 const MOON_SVG   = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13 9A5 5 0 1 1 7 3a4 4 0 0 0 6 6z"/></svg>`;
@@ -410,7 +410,7 @@ btnTheme.addEventListener('click', () => {
   applyTheme(next);
 });
 
-// ── Init ──────────────────────────────────────────────────────────────────────
+// init
 
 (async function init() {
   await loadFolders();

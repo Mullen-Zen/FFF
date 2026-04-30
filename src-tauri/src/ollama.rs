@@ -28,10 +28,10 @@ struct OllamaResponse {
 }
 
 fn parse_tags(raw: &str) -> Vec<String> {
-    // Models may emit commas, newlines, quotes, or Python-list brackets — handle all of them.
+    // Models may emit commas, newlines, quotes, or Python-list brackets
     raw.split([',', '\n'])
         .map(|t| {
-            // Strip list punctuation then re-join whitespace so "[ 'abdomen'" → "abdomen".
+            // Strip list punctuation then re-join whitespace
             t.chars()
                 .filter(|c| !matches!(c, '\'' | '"' | '[' | ']'))
                 .collect::<String>()
@@ -83,7 +83,7 @@ pub async fn get_tags(
     Ok(parse_tags(&resp.response))
 }
 
-/// Tag an image using moondream (vision model). Silently skipped if moondream isn't running.
+/// Tag an image using moondream (vision model)
 pub async fn get_image_tags(
     client: &reqwest::Client,
     name:   &str,

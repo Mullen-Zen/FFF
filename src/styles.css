@@ -39,14 +39,14 @@ html, body {
   overflow: hidden;
 }
 
-/* ── LAYOUT ──────────────────────────────────────────── */
+/* layout */
 
 #app {
   display: flex;
   height: 100vh;
 }
 
-/* ── SIDEBAR RAIL ────────────────────────────────────── */
+/* sidebar rail */
 
 #sidebar {
   width: 48px;
@@ -216,7 +216,7 @@ html, body {
   color: #C0392B;
 }
 
-/* ── MAIN CONTENT ────────────────────────────────────── */
+/* main */
 
 #content {
   flex: 1;
@@ -226,7 +226,7 @@ html, body {
   min-width: 0;
 }
 
-/* ── SEARCH ──────────────────────────────────────────── */
+/* searchbar */
 
 #search-bar {
   padding: 24px 32px 0;
@@ -271,7 +271,7 @@ html, body {
   border-bottom-color: var(--accent);
 }
 
-/* ── BROWSE BAR ──────────────────────────────────────── */
+/* browse */
 
 #browse-bar {
   display: none;
@@ -302,7 +302,7 @@ html, body {
   color: var(--accent);
 }
 
-/* ── RESULTS AREA ────────────────────────────────────── */
+/* results */
 
 #results-area {
   flex: 1;
@@ -329,7 +329,7 @@ html, body {
   scrollbar-color: var(--border) transparent;
 }
 
-/* ── FILE ROWS ───────────────────────────────────────── */
+/* file rows */
 
 .file-row {
   display: grid;
@@ -436,7 +436,6 @@ html, body {
   color: var(--accent);
 }
 
-/* ── SECTION LABEL ───────────────────────────────────── */
 
 .results-section-label {
   font-size: 10px;
@@ -448,7 +447,6 @@ html, body {
   border-bottom: 1px solid var(--border);
 }
 
-/* ── EMPTY STATE ─────────────────────────────────────── */
 
 .empty-state {
   padding: 32px 0;
@@ -457,7 +455,7 @@ html, body {
   line-height: 2;
 }
 
-/* ── THEME TOGGLE ────────────────────────────────────── */
+/* theme */
 
 #btn-theme {
   display: flex;

@@ -112,19 +112,19 @@ fn dispatch_event(
     pending: &mut HashMap<PathBuf, Instant>,
 ) {
     match event.kind {
-        // Content created or changed — debounce then re-index.
+        // Content created or changed
         EventKind::Create(_) | EventKind::Modify(ModifyKind::Data(_)) => {
             for path in event.paths.into_iter().filter(|p| p.is_file()) {
                 pending.insert(path, Instant::now());
             }
         }
-        // File deleted — remove from DB immediately.
+        // File deleted
         EventKind::Remove(_) => {
             for path in event.paths {
                 remove_path(db_path, pending, path);
             }
         }
-        // Rename / move — handle each direction.
+        // Rename / move
         EventKind::Modify(ModifyKind::Name(mode)) => {
             match mode {
                 // Old location: delete from DB.
@@ -139,7 +139,8 @@ fn dispatch_event(
                         pending.insert(path, Instant::now());
                     }
                 }
-                // Both paths in one event: paths[0] = old, paths[1] = new.
+                // Both paths in one event 
+                // paths[0] = old, paths[1] = new.
                 RenameMode::Both => {
                     if let Some(old) = event.paths.first().cloned() {
                         remove_path(db_path, pending, old);
@@ -148,7 +149,7 @@ fn dispatch_event(
                         pending.insert(new, Instant::now());
                     }
                 }
-                // Direction unknown — check existence to decide.
+                // Direction unknown
                 RenameMode::Any => {
                     for path in event.paths {
                         if path.is_file() {

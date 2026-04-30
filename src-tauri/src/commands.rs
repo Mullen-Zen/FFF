@@ -8,12 +8,12 @@ use crate::{
     indexer::{IndexStatus, SharedStatus, WatcherHandle},
 };
 
-// ---- Managed-state wrappers ----
+// managed state wrappers
 
 pub struct DbPath(pub PathBuf);
 pub struct HttpClient(pub reqwest::Client);
 
-// ---- browse_directory ----
+// browse dir
 
 #[derive(serde::Serialize, Debug)]
 pub struct DirEntry {
@@ -73,7 +73,7 @@ pub async fn browse_directory(
     .map_err(|e| AppError::Other(e.to_string()))?
 }
 
-// ---- search_files ----
+// search
 
 #[tauri::command]
 pub async fn search_files(
@@ -89,7 +89,7 @@ pub async fn search_files(
     .map_err(|e| AppError::Other(e.to_string()))?
 }
 
-// ---- index_directory ----
+// index new dir
 
 #[tauri::command]
 pub async fn index_directory(
@@ -126,8 +126,6 @@ pub async fn index_directory(
     Ok(())
 }
 
-// ---- get_indexed_dirs ----
-
 #[tauri::command]
 pub async fn get_indexed_dirs(
     db_path: State<'_, DbPath>,
@@ -141,23 +139,17 @@ pub async fn get_indexed_dirs(
     .map_err(|e| AppError::Other(e.to_string()))?
 }
 
-// ---- open_file ----
-
 #[tauri::command]
 pub async fn open_file(path: String) -> Result<(), AppError> {
     tauri_plugin_opener::open_path(path, None::<String>)
         .map_err(|e| AppError::Other(e.to_string()))
 }
 
-// ---- reveal_in_file_manager ----
-
 #[tauri::command]
 pub async fn reveal_in_file_manager(path: String) -> Result<(), AppError> {
     tauri_plugin_opener::reveal_item_in_dir(path)
         .map_err(|e| AppError::Other(e.to_string()))
 }
-
-// ---- clear_index ----
 
 #[tauri::command]
 pub async fn clear_index(
@@ -171,8 +163,6 @@ pub async fn clear_index(
     .await
     .map_err(|e| AppError::Other(e.to_string()))?
 }
-
-// ---- get_index_status ----
 
 #[tauri::command]
 pub async fn get_index_status(
