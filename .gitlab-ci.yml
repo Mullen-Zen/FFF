@@ -6,11 +6,29 @@
 # Note that environment variables can be set in several places
 # See https://docs.gitlab.com/ee/ci/variables/#cicd-variable-precedence
 stages:
-- test
-- secret-detection
+  - test
+  - secret-detection
+
 variables:
   SECRET_DETECTION_ENABLED: 'true'
+
+rust-tests:
+  stage: test
+  image: rust:latest
+  before_script:
+    - apt-get update -qq
+    - apt-get install -y -qq libwebkit2gtk-4.1-dev libgtk-3-dev libayatana-appindicator3-dev librsvg2-dev libssl-dev
+  script:
+    - cd src-tauri && cargo test --lib --color always
+  cache:
+    key: cargo-$CI_COMMIT_REF_SLUG
+    paths:
+      - src-tauri/target/
+      - /usr/local/cargo/registry/
+      - /usr/local/cargo/git/
+
 secret_detection:
   stage: secret-detection
+
 include:
-- template: Security/Secret-Detection.gitlab-ci.yml
+  - template: Security/Secret-Detection.gitlab-ci.yml

@@ -184,3 +184,107 @@ pub fn clear_all(conn: &Connection) -> Result<()> {
     conn.execute_batch("DELETE FROM tags; DELETE FROM files; DELETE FROM indexed_dirs;")?;
     Ok(())
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use rusqlite::Connection;
+
+    fn setup() -> Connection {
+        let conn = Connection::open_in_memory().unwrap();
+        run_migrations(&conn).unwrap();
+        conn
+    }
+
+    #[test]
+    fn migrations_are_idempotent() {
+        let conn = setup();
+        run_migrations(&conn).unwrap();
+    }
+
+    #[test]
+    fn upsert_file_returns_positive_id() {
+        let conn = setup();
+        let id = upsert_file(&conn, "/tmp/foo.txt", "foo.txt", Some("txt"), Some(100), None).unwrap();
+        assert!(id > 0);
+    }
+
+    #[test]
+    fn upsert_file_is_idempotent() {
+        let conn = setup();
+        let id1 = upsert_file(&conn, "/tmp/foo.txt", "foo.txt", Some("txt"), Some(100), None).unwrap();
+        let id2 = upsert_file(&conn, "/tmp/foo.txt", "foo.txt", Some("txt"), Some(200), None).unwrap();
+        assert_eq!(id1, id2);
+    }
+
+    #[test]
+    fn insert_tags_trims_and_lowercases() {
+        let conn = setup();
+        let id = upsert_file(&conn, "/tmp/cat.jpg", "cat.jpg", Some("jpg"), None, None).unwrap();
+        insert_tags(&conn, id, &["  Cat  ".to_string(), "Animal".to_string()], "ai").unwrap();
+        let tags = get_tags_for_file(&conn, id).unwrap();
+        assert!(tags.contains(&"cat".to_string()));
+        assert!(tags.contains(&"animal".to_string()));
+    }
+
+    #[test]
+    fn insert_tags_skips_empty_strings() {
+        let conn = setup();
+        let id = upsert_file(&conn, "/tmp/x.txt", "x.txt", None, None, None).unwrap();
+        insert_tags(&conn, id, &["".to_string(), "  ".to_string()], "auto").unwrap();
+        assert!(get_tags_for_file(&conn, id).unwrap().is_empty());
+    }
+
+    #[test]
+    fn search_finds_by_name() {
+        let conn = setup();
+        upsert_file(&conn, "/tmp/report.pdf", "report.pdf", Some("pdf"), None, None).unwrap();
+        let results = search_files(&conn, "report").unwrap();
+        assert_eq!(results.len(), 1);
+        assert_eq!(results[0].name, "report.pdf");
+    }
+
+    #[test]
+    fn search_finds_by_tag() {
+        let conn = setup();
+        let id = upsert_file(&conn, "/tmp/cat.jpg", "cat.jpg", Some("jpg"), None, None).unwrap();
+        insert_tags(&conn, id, &["feline".to_string()], "ai").unwrap();
+        let results = search_files(&conn, "feline").unwrap();
+        assert_eq!(results.len(), 1);
+        assert!(results[0].tags.contains(&"feline".to_string()));
+    }
+
+    #[test]
+    fn search_returns_empty_on_no_match() {
+        let conn = setup();
+        upsert_file(&conn, "/tmp/report.pdf", "report.pdf", Some("pdf"), None, None).unwrap();
+        assert!(search_files(&conn, "zzznomatch").unwrap().is_empty());
+    }
+
+    #[test]
+    fn delete_removes_file() {
+        let conn = setup();
+        upsert_file(&conn, "/tmp/gone.txt", "gone.txt", Some("txt"), None, None).unwrap();
+        delete_file_by_path(&conn, "/tmp/gone.txt").unwrap();
+        assert!(search_files(&conn, "gone").unwrap().is_empty());
+    }
+
+    #[test]
+    fn delete_falls_back_to_private_prefix() {
+        let conn = setup();
+        // File stored without the /private prefix (canonical path)
+        upsert_file(&conn, "/Users/test/file.txt", "file.txt", Some("txt"), None, None).unwrap();
+        // FSEvents on macOS may report the /private-prefixed form
+        delete_file_by_path(&conn, "/private/Users/test/file.txt").unwrap();
+        assert!(search_files(&conn, "file").unwrap().is_empty());
+    }
+
+    #[test]
+    fn clear_all_removes_files_and_tags() {
+        let conn = setup();
+        let id = upsert_file(&conn, "/tmp/file.txt", "file.txt", Some("txt"), None, None).unwrap();
+        insert_tags(&conn, id, &["tag".to_string()], "auto").unwrap();
+        clear_all(&conn).unwrap();
+        assert!(search_files(&conn, "file").unwrap().is_empty());
+    }
+}
