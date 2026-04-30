@@ -18,11 +18,13 @@ The Llama3.2 model scans the first few hundred words in text-based file formats 
 
 First, this software relies on Ollama and two models for full functionality. While Ollama is not required for the software to work (or work well), the included AI/ML models will add features to tag the files you index based on their content, aiding in a faster and easier search.
   
-Install Ollama however you wish and ensure it's running with:
+Install Ollama however you wish and ensure it's running in a standalone terminal window with:
 
 ```.sh
 ollama serve
 ```
+
+If you already have Ollama installed/running as a service in the background there is no need to have "ollama serve" running in a dedicated terminal window.
 
 Then pull the two models, Llama3.2 and Moondream:
 
