@@ -1,6 +1,6 @@
 {
   "identifier": "main-capability",
-  "description": "Main window permissions for FFF Proto",
+  "description": "Main window permissions for FFF",
   "windows": ["main"],
   "permissions": [
     "core:default",

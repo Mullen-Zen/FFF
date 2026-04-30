@@ -9,6 +9,7 @@ setTimeout(() => {
 
 const { invoke } = window.__TAURI__.core;
 const { listen }  = window.__TAURI__.event;
+const os = await invoke('get_os');
 
 // geometric glyphs for file types
 const G = `viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"`;
@@ -113,6 +114,10 @@ function renderDirRow(e) {
   row.className = 'file-row' + (e.is_dir ? ' is-dir' : '');
   const meta = e.is_dir ? 'folder' : formatBytes(e.size);
 
+  const tagsHtml = (e.tags ?? [])
+    .map(t => `<span class="tag ai">${escHtml(t)}</span>`)
+    .join('');
+
   const actionsHtml = e.is_dir ? '' : `
     <div class="row-actions">
       <button data-action="open"   data-path="${escAttr(e.path)}">Open</button>
@@ -124,6 +129,7 @@ function renderDirRow(e) {
     <div class="file-info">
       <div class="file-name" title="${escAttr(e.name)}">${escHtml(e.name)}</div>
       <div class="file-meta">${escHtml(meta)}</div>
+      ${tagsHtml ? `<div class="file-tags">${tagsHtml}</div>` : ''}
     </div>
     ${actionsHtml}`;
 
@@ -131,7 +137,7 @@ function renderDirRow(e) {
   return row;
 }
 
-// ── Recents (localStorage) ────────────────────────────────────────────────────
+// recents
 
 const RECENTS_KEY = 'fff_recents';
 
@@ -171,7 +177,7 @@ function renderRecents() {
   });
 }
 
-// ── Browse directory ──────────────────────────────────────────────────────────
+// browse
 
 async function browseDir(path) {
   try {
@@ -194,7 +200,7 @@ async function browseDir(path) {
   }
 }
 
-// ── Search ────────────────────────────────────────────────────────────────────
+// search
 
 async function performSearch(query) {
   if (!query.trim()) {
@@ -250,7 +256,7 @@ async function performSearch(query) {
   }
 }
 
-// ── Sidebar folder list ───────────────────────────────────────────────────────
+// sidebar folder list
 
 async function loadFolders() {
   try {
@@ -284,7 +290,7 @@ async function loadFolders() {
   }
 }
 
-// ── Add folder ────────────────────────────────────────────────────────────────
+// add folder
 
 btnAddFolder.addEventListener('click', async () => {
   try {
@@ -302,7 +308,7 @@ btnAddFolder.addEventListener('click', async () => {
   }
 });
 
-// ── Clear index ───────────────────────────────────────────────────────────────
+// clear index
 
 btnClearIndex.addEventListener('click', async () => {
   if (!confirm('Clear all indexed files and tags?')) return;
@@ -346,7 +352,10 @@ btnUp.addEventListener('click', () => {
   if (!currentDir) return;
   const normalized = currentDir.replace(/\\/g, '/');
   const parent = normalized.replace(/\/[^/]+\/?$/, '') || normalized;
-  if (parent && parent !== normalized) browseDir(parent.replace(/\//g, '\\'));
+  if (parent && parent !== normalized) {
+    const finalPath = os === 'windows' ? parent.replace(/\//g, '\\') : parent;
+    browseDir(finalPath);
+  }
 });
 
 // ── Keyboard: / focuses search ────────────────────────────────────────────────

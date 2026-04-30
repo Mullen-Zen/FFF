@@ -147,6 +147,32 @@ pub fn get_tags_for_file(conn: &Connection, file_id: i64) -> Result<Vec<String>>
     Ok(tags?)
 }
 
+pub fn get_tags_for_path(conn: &Connection, path: &str) -> Result<Vec<String>> {
+    let mut stmt = conn.prepare(
+        "SELECT t.tag FROM tags t
+         JOIN files f ON f.id = t.file_id
+         WHERE f.path = ?1
+         ORDER BY t.source DESC, t.tag",
+    )?;
+    let tags: std::result::Result<Vec<String>, _> =
+        stmt.query_map(params![path], |r| r.get(0))?.collect();
+    Ok(tags?)
+}
+
+pub fn delete_file_by_path(conn: &Connection, path: &str) -> Result<()> {
+    conn.execute("DELETE FROM files WHERE path = ?1", params![path])?;
+    // On macOS /Users is a symlink to /private/Users; FSEvents may report either form.
+    if conn.changes() == 0 {
+        let alt = if let Some(stripped) = path.strip_prefix("/private") {
+            stripped.to_string()
+        } else {
+            format!("/private{path}")
+        };
+        conn.execute("DELETE FROM files WHERE path = ?1", params![alt])?;
+    }
+    Ok(())
+}
+
 pub fn get_indexed_dirs(conn: &Connection) -> Result<Vec<String>> {
     let mut stmt = conn.prepare("SELECT path FROM indexed_dirs ORDER BY path")?;
     let rows: std::result::Result<Vec<String>, _> =

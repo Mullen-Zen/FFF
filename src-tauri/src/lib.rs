@@ -11,6 +11,11 @@ use tauri::Manager;
 use commands::{DbPath, HttpClient};
 use indexer::SharedStatus;
 
+#[tauri::command]
+fn get_os() -> &'static str {
+    std::env::consts::OS
+}
+
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
@@ -33,20 +38,20 @@ pub fn run() {
                 db::run_migrations(&conn)?;
             }
 
-            app.manage(DbPath(db_path));
-            app.manage(HttpClient(
-                reqwest::Client::builder()
-                    .timeout(std::time::Duration::from_secs(60))
-                    .build()
-                    .expect("failed to build HTTP client"),
-            ));
-            app.manage(SharedStatus::new(Mutex::new(
-                indexer::IndexStatus::default(),
-            )));
+            let client = reqwest::Client::builder()
+                .timeout(std::time::Duration::from_secs(60))
+                .build()
+                .expect("failed to build HTTP client");
+
+            app.manage(DbPath(db_path.clone()));
+            app.manage(HttpClient(client.clone()));
+            app.manage(SharedStatus::new(Mutex::new(indexer::IndexStatus::default())));
+            app.manage(indexer::start_watcher(db_path, client));
 
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
+            get_os,
             commands::browse_directory,
             commands::search_files,
             commands::index_directory,

@@ -26,6 +26,8 @@ rusqlite    = { version = "0.32", features = ["bundled"] }
 reqwest     = { version = "0.12", features = ["json"] }
 walkdir     = "2"
 thiserror   = "2"
+notify      = "6"
+base64      = "0.22"
 
 [profile.release]
 panic = "abort"

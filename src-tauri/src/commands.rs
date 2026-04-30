@@ -5,7 +5,7 @@ use tauri::{AppHandle, State};
 use crate::{
     db::{self, FileResult},
     error::AppError,
-    indexer::{IndexStatus, SharedStatus},
+    indexer::{IndexStatus, SharedStatus, WatcherHandle},
 };
 
 // ---- Managed-state wrappers ----
@@ -22,35 +22,55 @@ pub struct DirEntry {
     pub is_dir:   bool,
     pub size:     Option<u64>,
     pub modified: Option<u64>,
+    pub tags:     Vec<String>,
 }
 
 #[tauri::command]
-pub async fn browse_directory(path: String) -> Result<Vec<DirEntry>, AppError> {
+pub async fn browse_directory(
+    path:    String,
+    db_path: State<'_, DbPath>,
+) -> Result<Vec<DirEntry>, AppError> {
     let base = PathBuf::from(&path);
-    let mut entries = Vec::new();
+    let db_path_clone = db_path.0.clone();
 
-    for entry in std::fs::read_dir(&base)
-        .map_err(AppError::Io)?
-        .flatten()
-    {
-        let p = entry.path();
-        let meta = entry.metadata().ok();
-        entries.push(DirEntry {
-            name:     entry.file_name().to_string_lossy().to_string(),
-            path:     p.to_string_lossy().to_string(),
-            is_dir:   p.is_dir(),
-            size:     meta.as_ref().map(|m| m.len()),
-            modified: meta
-                .as_ref()
-                .and_then(|m| m.modified().ok())
-                .and_then(|t| t.duration_since(std::time::UNIX_EPOCH).ok())
-                .map(|d| d.as_secs()),
-        });
-    }
+    tokio::task::spawn_blocking(move || {
+        let conn = db::open_connection(&db_path_clone)?;
+        let mut entries = Vec::new();
 
-    // Directories first, then alphabetical
-    entries.sort_by(|a, b| b.is_dir.cmp(&a.is_dir).then(a.name.cmp(&b.name)));
-    Ok(entries)
+        for entry in std::fs::read_dir(&base)
+            .map_err(AppError::Io)?
+            .flatten()
+        {
+            let p = entry.path();
+            let meta = entry.metadata().ok();
+            let is_dir = p.is_dir();
+            let path_str = p.to_string_lossy().to_string();
+            let tags = if !is_dir {
+                db::get_tags_for_path(&conn, &path_str).unwrap_or_default()
+            } else {
+                vec![]
+            };
+
+            entries.push(DirEntry {
+                name: entry.file_name().to_string_lossy().to_string(),
+                path: path_str,
+                is_dir,
+                size: meta.as_ref().map(|m| m.len()),
+                modified: meta
+                    .as_ref()
+                    .and_then(|m| m.modified().ok())
+                    .and_then(|t| t.duration_since(std::time::UNIX_EPOCH).ok())
+                    .map(|d| d.as_secs()),
+                tags,
+            });
+        }
+
+        // Directories first, then alphabetical
+        entries.sort_by(|a, b| b.is_dir.cmp(&a.is_dir).then(a.name.cmp(&b.name)));
+        Ok(entries)
+    })
+    .await
+    .map_err(|e| AppError::Other(e.to_string()))?
 }
 
 // ---- search_files ----
@@ -78,6 +98,7 @@ pub async fn index_directory(
     db_path:     State<'_, DbPath>,
     http_client: State<'_, HttpClient>,
     status:      State<'_, SharedStatus>,
+    watcher:     State<'_, WatcherHandle>,
 ) -> Result<(), AppError> {
     {
         let s = status.inner().lock().unwrap();
@@ -91,9 +112,12 @@ pub async fn index_directory(
         return Err(AppError::Other(format!("Not a directory: {}", path)));
     }
 
-    let db_path_clone  = db_path.0.clone();
-    let client_clone   = http_client.0.clone();
-    let status_clone   = status.inner().clone();
+    // Register with the watcher so new files are picked up after initial indexing.
+    watcher.add(&folder);
+
+    let db_path_clone = db_path.0.clone();
+    let client_clone  = http_client.0.clone();
+    let status_clone  = status.inner().clone();
 
     tauri::async_runtime::spawn(async move {
         crate::indexer::run_indexing(app, db_path_clone, folder, status_clone, client_clone).await;

@@ -1,9 +1,11 @@
+use base64::Engine as _;
 use serde::{Deserialize, Serialize};
 
 use crate::error::Result;
 
-const OLLAMA_URL: &str = "http://localhost:11434/api/generate";
-const MODEL: &str = "llama3.2";
+const OLLAMA_URL:  &str = "http://localhost:11434/api/generate";
+const TEXT_MODEL:  &str = "llama3.2";
+const VISION_MODEL: &str = "moondream";
 
 #[derive(Serialize)]
 struct OllamaRequest<'a> {
@@ -12,9 +14,38 @@ struct OllamaRequest<'a> {
     stream: bool,
 }
 
+#[derive(Serialize)]
+struct OllamaVisionRequest<'a> {
+    model:  &'a str,
+    prompt: String,
+    images: Vec<String>,
+    stream: bool,
+}
+
 #[derive(Deserialize)]
 struct OllamaResponse {
     response: String,
+}
+
+fn parse_tags(raw: &str) -> Vec<String> {
+    // Models may emit commas, newlines, quotes, or Python-list brackets — handle all of them.
+    raw.split([',', '\n'])
+        .map(|t| {
+            // Strip list punctuation then re-join whitespace so "[ 'abdomen'" → "abdomen".
+            t.chars()
+                .filter(|c| !matches!(c, '\'' | '"' | '[' | ']'))
+                .collect::<String>()
+                .split_whitespace()
+                .collect::<Vec<_>>()
+                .join(" ")
+                .to_lowercase()
+        })
+        .filter(|t| {
+            !t.is_empty()
+                && t.len() < 50
+                && t.split_whitespace().count() <= 3 // drop run-on phrases
+        })
+        .collect()
 }
 
 fn build_prompt(name: &str, ext: &str, preview: Option<&str>) -> String {
@@ -27,40 +58,54 @@ fn build_prompt(name: &str, ext: &str, preview: Option<&str>) -> String {
     };
     format!(
         "You are a file tagging assistant. Given the filename and optional content preview, \
-         output ONLY a comma-separated list of 3-8 short, lowercase, descriptive tags. \
-         No explanations, no numbering, no extra text — just the tags.\n\n\
+         output ONLY a comma-separated list of 3-8 short, lowercase, one-or-two-word tags. \
+         No explanations, no numbering, no quotes, no brackets — just the tags.\n\n\
          Filename: {}\nExtension: {}{}",
         name, ext, content_hint
     )
 }
 
 pub async fn get_tags(
-    client: &reqwest::Client,
-    name: &str,
-    ext: &str,
+    client:  &reqwest::Client,
+    name:    &str,
+    ext:     &str,
     preview: Option<&str>,
 ) -> Result<Vec<String>> {
-    let body = OllamaRequest {
-        model: MODEL,
-        prompt: build_prompt(name, ext, preview),
-        stream: false,
-    };
-
     let resp = client
         .post(OLLAMA_URL)
-        .json(&body)
+        .json(&OllamaRequest { model: TEXT_MODEL, prompt: build_prompt(name, ext, preview), stream: false })
         .timeout(std::time::Duration::from_secs(30))
         .send()
         .await?
         .json::<OllamaResponse>()
         .await?;
 
-    let tags: Vec<String> = resp
-        .response
-        .split(',')
-        .map(|t| t.trim().to_lowercase())
-        .filter(|t| !t.is_empty() && t.len() < 50)
-        .collect();
+    Ok(parse_tags(&resp.response))
+}
 
-    Ok(tags)
+/// Tag an image using moondream (vision model). Silently skipped if moondream isn't running.
+pub async fn get_image_tags(
+    client: &reqwest::Client,
+    name:   &str,
+    bytes:  &[u8],
+) -> Result<Vec<String>> {
+    let b64 = base64::engine::general_purpose::STANDARD.encode(bytes);
+    let prompt = format!(
+        "You are a file tagging assistant. The image filename is '{}'. \
+         Output ONLY a comma-separated list of 3-6 short, lowercase, one-or-two-word tags. \
+         Describe what the main subject IS and its context (e.g. cat, pet, indoor, portrait). \
+         Focus on subjects and categories — not body parts or low-level details. \
+         No quotes, no brackets, no explanations — just the tags.",
+        name
+    );
+    let resp = client
+        .post(OLLAMA_URL)
+        .json(&OllamaVisionRequest { model: VISION_MODEL, prompt, images: vec![b64], stream: false })
+        .timeout(std::time::Duration::from_secs(30))
+        .send()
+        .await?
+        .json::<OllamaResponse>()
+        .await?;
+
+    Ok(parse_tags(&resp.response))
 }
