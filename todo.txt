@@ -1,6 +1,0 @@
-MAC:
-corner logo missing
-dir traversal using backslashes on mac
-
-general:
-logo on app icon
