@@ -39,7 +39,7 @@ Then either download the bundled software or build it from source with:
 cargo tauri build
 ```
 
-*Important note:* If downloading the MacOS .dmg installer from releases, you MUST run the following command after installing the app to remove it from Apple quarantine. It will not run without this.
+**Important note:** If downloading the MacOS .dmg installer from releases, you MUST run the following command after installing the app to remove it from Apple quarantine. It will not run without this.
 
 ```.sh
 xattr -cr /Applications/FFF.app
