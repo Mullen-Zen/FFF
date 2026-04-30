@@ -37,6 +37,17 @@ Then either download the bundled software or build it from source with:
 cargo tauri build
 ```
 
+*Important note:* If downloading the MacOS .dmg installer from releases, you MUST run the following command after installing the app to remove it from Apple quarantine. It will not run without this.
+
+```.sh
+xattr -cr /Applications/FFF.app
+```
+
+## Use
+
+To use FFF, select "Add Folder" and select the directory you want to add for fast search and indexing. Do this for as many folders as you like.
+If you want to clear the indexed folders for whatever reason, there is a button to do that at the bottom-left of the screen.
+
 ## Authors and acknowledgment
 This project was completed as part of coursework for East Carolina University's Spring 2026 Software Engineering II course. The project team members are:
 * Garrison Mullen
