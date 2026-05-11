@@ -25,7 +25,7 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
 
       - name: Cache Cargo
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             src-tauri/target/
@@ -38,7 +38,7 @@ jobs:
         run: cd src-tauri && cargo test --lib --color always
 
   build:
-    needs: test  # won't run if tests fail
+    needs: test
     strategy:
       fail-fast: false
       matrix:
@@ -69,12 +69,6 @@ jobs:
             librsvg2-dev \
             libssl-dev
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: 'npm'
-
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
         with:
@@ -82,11 +76,10 @@ jobs:
 
       - name: Add Mac universal targets
         if: matrix.target == 'universal-apple-darwin'
-        run: |
-          rustup target add aarch64-apple-darwin x86_64-apple-darwin
+        run: rustup target add aarch64-apple-darwin x86_64-apple-darwin
 
       - name: Cache Cargo
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             src-tauri/target/
@@ -94,9 +87,6 @@ jobs:
             ~/.cargo/git/
           key: cargo-${{ matrix.label }}-${{ hashFiles('src-tauri/Cargo.lock') }}
           restore-keys: cargo-${{ matrix.label }}-
-
-      - name: Install frontend deps
-        run: npm ci
 
       - name: Build and release
         uses: tauri-apps/tauri-action@v0
