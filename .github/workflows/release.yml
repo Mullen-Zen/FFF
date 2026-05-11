@@ -21,6 +21,9 @@ jobs:
             target: x86_64-unknown-linux-gnu
             label: linux
 
+    permissions:
+      contents: write
+
     runs-on: ${{ matrix.os }}
 
     steps:
