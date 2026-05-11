@@ -14,6 +14,10 @@ The Llama3.2 model scans the first few hundred words in text-based file formats 
   
 **Note** that this software is 100% offline and local. The AI models and their inputs/outputs stay on your computer and never touch the internet. The same goes for the actual files and their content. No data collection here.
 
+## Quickest Start
+
+Naviagte to the "releases" page [here](https://github.com/Mullen-Zen/FFF/releases) and download the appropriate installer. MacOS uses the .dmg, Windows the .msi or .exe, and Linux users have a few options.
+
 ## Getting started
 
 First, this software relies on Ollama and two models for full functionality. While Ollama is not required for the software to work (or work well), the included AI/ML models will add features to tag the files you index based on their content, aiding in a faster and easier search.
@@ -33,7 +37,7 @@ ollama pull llama3.2
 ollama pull moondream
 ```
 
-Then either download the bundled software or build it from source with:
+Then either download the bundled software from the [releases page](https://github.com/Mullen-Zen/FFF/releases) or build it from source with:
 
 ```.sh
 cargo tauri build
